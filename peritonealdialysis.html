@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DART Tools — Peritoneal Dialysis (Baxter)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b11; --card:#111a27; --card2:#0f1722;
+  --border:rgba(149,173,205,.14); --border-strong:rgba(122,162,255,.28);
+  --text:#e9f0fa; --muted:#96a7bf;
+  --primary:#61a8ff; --primary2:#3b82f6; --accent:#7ef0d2;
+  --gold:#cfa95f; --warn:#ffcd70; --danger:#ff6f6f; --purple:#b389ff;
+  --shadow:0 20px 60px rgba(0,0,0,.35);
+  --nav-bg:rgba(7,11,17,.82); --grid:rgba(255,255,255,.03);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:radial-gradient(circle at top, rgba(97,168,255,.10), transparent 30%),radial-gradient(circle at 80% 20%, rgba(126,240,210,.08), transparent 24%),linear-gradient(180deg, var(--bg), #05080d 100%);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);background-size:40px 40px;opacity:.45;mask-image:linear-gradient(to bottom, rgba(0,0,0,.35), transparent 80%)}
+a{text-decoration:none;color:inherit}
+.container{width:min(1280px, calc(100% - 28px));margin:0 auto}
+
+nav{position:sticky;top:0;z-index:200;backdrop-filter:blur(18px);background:var(--nav-bg);border-bottom:1px solid var(--border)}
+.nav-inner{min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:20px;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 10px 28px rgba(59,130,246,.28)}
+.brand-title{font-size:21px;font-weight:900;letter-spacing:-.025em;line-height:1.1}
+.brand-sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:700}
+.nav-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.02);color:var(--muted);font-size:12px;font-weight:700;transition:all .2s ease}
+.chip-home{background:linear-gradient(135deg,rgba(97,168,255,.14),rgba(126,240,210,.10));border-color:rgba(97,168,255,.3);color:#d8ecff}
+.chip-home:hover{border-color:rgba(97,168,255,.55);color:#fff;transform:translateY(-1px)}
+.chip-why{background:linear-gradient(135deg,rgba(207,169,95,.18),rgba(126,240,210,.10));border-color:rgba(207,169,95,.35);color:#f0dba8}
+.chip-why:hover{border-color:rgba(207,169,95,.6);color:#fff;transform:translateY(-1px)}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(126,240,210,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.5}}
+
+.head-bar{padding:22px 0 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:18px;position:relative;overflow:hidden}
+.head-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);font-weight:800;margin-bottom:6px}
+.head-title{font-size:clamp(22px,3.4vw,32px);line-height:1.05;letter-spacing:-.03em;font-weight:900}
+.head-title .accent{background:linear-gradient(135deg,#eaf3ff 0%,#99c9ff 45%,#7ef0d2 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head-meta{font-size:13px;color:var(--muted);max-width:520px;line-height:1.65;text-align:right}
+
+.comet-stage{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.comet{position:absolute;top:0;left:0;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,#fff 0%,rgba(126,240,210,.95) 35%,rgba(97,168,255,.4) 65%,transparent 75%);box-shadow:0 0 6px 2px rgba(255,255,255,.9),0 0 14px 4px rgba(126,240,210,.7),0 0 28px 8px rgba(97,168,255,.4),0 0 50px 14px rgba(97,168,255,.18);offset-path:path('M -40 40 C 180 -8, 380 -12, 600 18 C 820 50, 1020 42, 1340 8');offset-rotate:auto;opacity:0;animation:cometRun 3.4s cubic-bezier(0.42,0.04,0.58,0.98) 0.3s forwards}
+.comet::after{content:'';position:absolute;top:50%;right:100%;width:90px;height:3px;background:linear-gradient(to left,rgba(255,255,255,.95),rgba(126,240,210,.75) 20%,rgba(97,168,255,.45) 50%,rgba(97,168,255,.15) 75%,transparent);transform:translateY(-50%);filter:blur(1.2px);border-radius:99px}
+.comet::before{content:'';position:absolute;top:50%;right:100%;width:46px;height:8px;background:linear-gradient(to left,rgba(126,240,210,.4),rgba(97,168,255,.18) 60%,transparent);transform:translateY(-50%);filter:blur(4px);border-radius:99px}
+@keyframes cometRun{0%{offset-distance:0%;opacity:0}7%{opacity:1}92%{opacity:1}100%{offset-distance:100%;opacity:0}}
+.twinkle{position:absolute;left:var(--x);top:var(--y);width:4px;height:4px;border-radius:50%;background:radial-gradient(circle,#fff 0%,rgba(126,240,210,.85) 45%,transparent 70%);filter:drop-shadow(0 0 4px rgba(126,240,210,.85)) drop-shadow(0 0 8px rgba(97,168,255,.4));opacity:0;animation:twink 1.4s ease-out var(--delay) forwards}
+.twinkle.small{width:2.5px;height:2.5px}
+.twinkle.tiny{width:1.5px;height:1.5px;background:radial-gradient(circle,#fff,transparent 60%)}
+@keyframes twink{0%{opacity:0;transform:scale(0) rotate(0)}22%{opacity:1;transform:scale(2.2) rotate(45deg)}42%{opacity:.55;transform:scale(1) rotate(90deg)}100%{opacity:0;transform:scale(.4) rotate(180deg)}}
+@media (prefers-reduced-motion:reduce){.comet,.twinkle{animation:none!important;opacity:0!important}}
+@media (max-width:780px){.comet{offset-path:path('M -20 35 C 90 0,180 -4,260 18 C 340 40,440 28,640 6');animation-duration:3.2s}.comet::after{width:60px;height:2.5px}.comet::before{width:30px;height:6px}.twinkle{transform:scale(.85)}}
+
+.grid-wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:18px;padding-bottom:44px}
+.panel{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:var(--shadow)}
+.panel-title{font-size:16px;font-weight:900;margin-bottom:4px}
+.panel-sub{font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1 / -1}
+.label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+
+input,select,button{font:inherit}
+input,select{width:100%;min-height:42px;border-radius:11px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);padding:0 12px;outline:none;transition:border-color .2s ease, box-shadow .2s ease}
+input:focus,select:focus{border-color:rgba(97,168,255,.45);box-shadow:0 0 0 3px rgba(97,168,255,.12)}
+input::placeholder{color:#70829a}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%),linear-gradient(135deg, var(--muted) 50%, transparent 50%);background-position:calc(100% - 16px) 50%, calc(100% - 11px) 50%;background-size:5px 5px, 5px 5px;background-repeat:no-repeat;padding-right:30px}
+
+.inline-toggle{display:flex;gap:6px;flex-wrap:wrap}
+.toggle-btn{flex:1;min-width:60px;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s ease}
+.toggle-btn:hover{border-color:rgba(97,168,255,.34)}
+.toggle-btn.active{background:linear-gradient(135deg,rgba(97,168,255,.22),rgba(126,240,210,.14));border-color:rgba(97,168,255,.45);color:#eaf3ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Color-coded solution chips for visual reference */
+.bag-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+.bag-chip{padding:8px 6px;border-radius:9px;border:1.5px solid transparent;background:rgba(255,255,255,.02);text-align:center;font-size:10px;font-weight:800;cursor:pointer;transition:all .18s ease;line-height:1.2}
+.bag-chip .pct{display:block;font-size:13px;margin-bottom:2px}
+.bag-chip.yellow{border-color:rgba(255,224,90,.45);color:#ffe16a}
+.bag-chip.green{border-color:rgba(126,240,140,.45);color:#9beba5}
+.bag-chip.red{border-color:rgba(255,120,120,.45);color:#ffa0a0}
+.bag-chip.purple{border-color:rgba(179,137,255,.45);color:#c8acff}
+.bag-chip.active{background:rgba(255,255,255,.08);transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,.3)}
+
+.note{border:1px solid rgba(126,240,210,.18);background:rgba(126,240,210,.06);color:#d5fff2;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.65}
+.note.warning{border-color:rgba(255,205,112,.20);background:rgba(255,205,112,.08);color:#ffe8b6}
+.note.info{border-color:rgba(97,168,255,.2);background:rgba(97,168,255,.05);color:#cfe2ff}
+.note.danger{border-color:rgba(255,111,111,.30);background:rgba(255,111,111,.08);color:#ffd2d2}
+
+.calc-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:12px;border:1px solid transparent;font-weight:800;font-size:14px;cursor:pointer;transition:all .22s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 10px 26px rgba(59,130,246,.26)}
+.btn-primary:hover{box-shadow:0 14px 32px rgba(59,130,246,.38)}
+.btn-secondary{color:var(--text);background:rgba(255,255,255,.03);border-color:var(--border)}
+.btn-secondary:hover{border-color:rgba(97,168,255,.34)}
+
+.result-stack{display:grid;gap:12px}
+.result-card{border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));padding:14px 16px}
+.result-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.result-value{font-size:clamp(20px,3vw,30px);letter-spacing:-.04em;line-height:1;font-weight:900;color:#f4f8ff;margin-bottom:6px}
+.result-meta{color:var(--muted);font-size:12px;line-height:1.6}
+.math-box{border:1px solid rgba(97,168,255,.18);background:rgba(97,168,255,.05);color:#d8e9ff;border-radius:14px;padding:12px 14px;font-size:12.5px;line-height:1.7}
+.math-box strong{color:#fff}
+.calc-line{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.calc-line:last-child{border-bottom:none}
+.hidden{display:none!important}
+
+/* hero tiles */
+.result-card.hero{border:2px solid rgba(126,240,210,.55);background:linear-gradient(135deg, rgba(126,240,210,.12), rgba(97,168,255,.08));box-shadow:0 16px 44px rgba(126,240,210,.10), inset 0 1px 0 rgba(255,255,255,.08);padding:18px 22px;position:relative}
+.result-card.hero::before{content:"";position:absolute;inset:-2px;border-radius:18px;background:linear-gradient(135deg, rgba(126,240,210,.35), rgba(97,168,255,.15));z-index:-1;opacity:.5;filter:blur(8px)}
+.result-card.hero .result-kicker{font-size:11px;color:#9be8d0;letter-spacing:.16em;margin-bottom:10px}
+.result-card.hero .result-value{font-size:clamp(40px, 6.5vw, 56px);color:#ecfff8;letter-spacing:-.05em;font-weight:900;margin-bottom:8px;text-shadow:0 2px 12px rgba(126,240,210,.12)}
+.result-card.hero .result-value .unit{font-size:.32em;font-weight:800;color:#9be8d0;margin-left:4px;letter-spacing:0}
+.result-card.hero .result-meta{color:#cdd6e2;font-size:13px}
+
+/* order summary */
+.order-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;line-height:1.55}
+.order-grid .lbl{color:var(--muted);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;align-self:center}
+.order-grid .val{color:#f4f8ff;font-weight:700}
+
+details{margin-top:2px}
+details summary{cursor:pointer;list-style:none;padding:10px 12px;border-radius:11px;border:1px dashed var(--border);background:rgba(255,255,255,.02);font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:space-between;transition:all .2s ease}
+details summary:hover{color:var(--text);border-color:rgba(97,168,255,.3)}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-size:16px;color:var(--accent);font-weight:900}
+details[open] summary::after{content:"−"}
+details[open] summary{margin-bottom:10px;border-style:solid}
+
+.foot{padding:18px 0 32px;border-top:1px solid var(--border);color:var(--muted);font-size:11.5px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:8px}
+
+@media (max-width:980px){.grid-wrap{grid-template-columns:1fr}.head-meta{text-align:left}}
+@media (max-width:540px){.form-grid,.sub-grid{grid-template-columns:1fr}.bag-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a class="brand" href="index.html">
+      <div class="brand-mark">D</div>
+      <div>
+        <div class="brand-title">DART Tools</div>
+        <div class="brand-sub">Clinical calculator suite</div>
+      </div>
+    </a>
+    <div class="nav-right">
+      <span class="chip"><span class="dot"></span>Peritoneal Dialysis · Baxter</span>
+      <a class="chip chip-why" href="whyperitonealdialysis.html" title="Why Peritoneal Dialysis?">📖 Why PD?</a>
+      <a class="chip chip-home" href="index.html">← Home</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="head-bar">
+    <div class="comet-stage" aria-hidden="true">
+      <div class="comet"></div>
+      <div class="twinkle"       style="--x:11%;--y:25%;--delay:0.70s"></div>
+      <div class="twinkle small" style="--x:19%;--y:15%;--delay:0.95s"></div>
+      <div class="twinkle"       style="--x:28%;--y:8%; --delay:1.20s"></div>
+      <div class="twinkle tiny"  style="--x:34%;--y:12%;--delay:1.40s"></div>
+      <div class="twinkle small" style="--x:42%;--y:18%;--delay:1.60s"></div>
+      <div class="twinkle"       style="--x:51%;--y:28%;--delay:1.85s"></div>
+      <div class="twinkle tiny"  style="--x:58%;--y:38%;--delay:2.05s"></div>
+      <div class="twinkle small" style="--x:65%;--y:45%;--delay:2.25s"></div>
+      <div class="twinkle"       style="--x:74%;--y:48%;--delay:2.50s"></div>
+      <div class="twinkle small" style="--x:82%;--y:38%;--delay:2.70s"></div>
+      <div class="twinkle tiny"  style="--x:89%;--y:25%;--delay:2.90s"></div>
+      <div class="twinkle small" style="--x:95%;--y:15%;--delay:3.10s"></div>
+    </div>
+    <div style="position:relative;z-index:1">
+      <div class="head-kicker">Peritoneal Dialysis · Baxter HomeChoice / Amia</div>
+      <div class="head-title"><span class="accent">PD Order Builder</span></div>
+    </div>
+    <div class="head-meta" style="position:relative;z-index:1">Weight-based fill safety, mode-specific cycle math, last-fill reconciliation, Baxter Dianeal/Extraneal bag planning. For trained clinicians only.</div>
+  </div>
+
+  <div class="grid-wrap">
+
+    <section class="panel">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="label" for="sex">Sex</label>
+          <select id="sex" autofocus>
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="label" for="age">Age (years)</label>
+          <input id="age" type="number" step="1" min="0" max="120" placeholder="e.g. 55" />
+        </div>
+
+        <div class="field">
+          <label class="label">Height Unit</label>
+          <div class="inline-toggle">
+            <button class="toggle-btn active" type="button" id="heightMetricBtn">cm</button>
+            <button class="toggle-btn" type="button" id="heightEnglishBtn">ft + in</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Weight Unit</label>
+          <div class="inline-toggle">
+            <button class="toggle-btn active" type="button" id="weightMetricBtn">kg</button>
+            <button class="toggle-btn" type="button" id="weightEnglishBtn">lb</button>
+          </div>
+        </div>
+
+        <div class="field" id="heightCmWrap">
+          <label class="label" for="heightCm">Height (cm)</label>
+          <input id="heightCm" type="number" step="0.1" min="0" placeholder="e.g. 170" />
+        </div>
+        <div class="field hidden" id="heightEnglishWrap">
+          <label class="label">Height (ft + in)</label>
+          <div class="sub-grid">
+            <input id="heightFt" type="number" step="1" min="0" placeholder="ft" />
+            <input id="heightIn" type="number" step="0.1" min="0" placeholder="in" />
+          </div>
+        </div>
+
+        <div class="field" id="weightKgWrap">
+          <label class="label" for="weightKg">Weight (kg)</label>
+          <input id="weightKg" type="number" step="0.1" min="0" placeholder="e.g. 70" />
+        </div>
+        <div class="field hidden" id="weightLbWrap">
+          <label class="label" for="weightLb">Weight (lb)</label>
+          <input id="weightLb" type="number" step="0.1" min="0" placeholder="e.g. 154" />
+        </div>
+
+        <div class="field full">
+          <label class="label" for="machine">Baxter Machine</label>
+          <select id="machine">
+            <option value="amia">Amia · touchscreen cycler · Sharesource remote · low-fill capable</option>
+            <option value="claria">HomeChoice Claria · CCPD/APD · low-fill capable · Sharesource</option>
+            <option value="homechoice">HomeChoice Pro · legacy CCPD/APD cycler</option>
+            <option value="manual">Manual (CAPD) — no cycler, daytime exchanges</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label class="label" for="mode">PD Modality</label>
+          <select id="mode">
+            <option value="ccpd">CCPD · Continuous Cycling PD (nighttime cycler + daytime dwell)</option>
+            <option value="nipd">NIPD · Nocturnal Intermittent PD (cycler only, dry day)</option>
+            <option value="tidal">Tidal PD · partial drain/refill per cycle</option>
+            <option value="ipd">IPD · Intermittent (acute / inpatient)</option>
+            <option value="capd">CAPD · Continuous Ambulatory (4–5 manual exchanges)</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label class="label">Solution / Bag (Baxter Dianeal · color = dextrose %)</label>
+          <div class="bag-row" id="bagRow" role="radiogroup" aria-label="Primary fill dextrose">
+            <button type="button" class="bag-chip yellow active" data-bag="1.5" role="radio" aria-checked="true"><span class="pct">1.5%</span>Yellow · light UF</button>
+            <button type="button" class="bag-chip green"        data-bag="2.5" role="radio" aria-checked="false"><span class="pct">2.5%</span>Green · moderate</button>
+            <button type="button" class="bag-chip red"          data-bag="4.25" role="radio" aria-checked="false"><span class="pct">4.25%</span>Red · max pull</button>
+            <button type="button" class="bag-chip purple"       data-bag="ico" role="radio" aria-checked="false"><span class="pct">Ico</span>Purple · long dwell</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="fillVolume">Fill Volume per Cycle (mL)</label>
+          <input id="fillVolume" type="number" step="50" min="50" max="3500" placeholder="e.g. 2000" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="cycles">Number of Cycles</label>
+          <input id="cycles" type="number" step="1" min="1" max="20" placeholder="e.g. 5" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="totalTime">Total Therapy Time (hr)</label>
+          <input id="totalTime" type="number" step="0.5" min="2" max="24" placeholder="e.g. 9" />
+        </div>
+
+        <div class="field" id="tidalWrap">
+          <label class="label" for="tidalPct">Tidal % (drain/refill per cycle)</label>
+          <input id="tidalPct" type="number" step="5" min="20" max="95" placeholder="e.g. 50" value="50" />
+        </div>
+
+        <div class="field full" id="lastFillWrap">
+          <label class="label">Last Fill (daytime dwell — for CCPD)</label>
+          <div class="sub-grid">
+            <input id="lastFillVolume" type="number" step="50" min="0" max="3500" placeholder="Last fill mL (e.g. 1500)" />
+            <select id="lastFillSolution">
+              <option value="same">Same as cycler bag</option>
+              <option value="1.5">1.5% (Yellow)</option>
+              <option value="2.5">2.5% (Green)</option>
+              <option value="4.25">4.25% (Red)</option>
+              <option value="ico">Icodextrin (Purple) — preferred for long dwell</option>
+              <option value="dry">Dry day (no last fill)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field full">
+          <details>
+            <summary>Optional: target therapy volume to validate against</summary>
+            <div class="form-grid" style="margin-top:8px">
+              <div class="field full">
+                <label class="label" for="targetTotal">Prescribed Total Therapy Volume (mL)</label>
+                <input id="targetTotal" type="number" step="100" min="0" max="40000" placeholder="e.g. 10000" />
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="field full">
+          <div class="note info">Not an order. All fills must match the patient's prescription and tolerance. Pediatric and low-fill orders require attending and on-call nephrology review prior to initiation. Verify aseptic technique and exit-site status before connecting the patient.</div>
+        </div>
+
+      </div>
+
+      <div class="calc-row">
+        <button class="btn btn-primary" id="calculateBtn" type="button">Calculate</button>
+        <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-title">Results</div>
+      <div class="panel-sub">Weight-based fill safety, total therapy reconciliation, dwell timing, bag count, and a full order summary you can read back.</div>
+      <div class="result-stack" id="results">
+        <div class="result-card">
+          <div class="result-kicker">Awaiting inputs</div>
+          <div class="result-value">—</div>
+          <div class="result-meta">Fill the form and press Calculate.</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <div class="foot">
+    <span>DART Tools · Peritoneal Dialysis (Baxter)</span>
+    <span>BSA: Mosteller · Fill safety per ISPD/Baxter IFU · Educational support — not a substitute for physician judgment</span>
+  </div>
+
+</div>
+
+<script>
+/* ── Baxter Dianeal / Extraneal solution metadata ── */
+const solutions = {
+  '1.5': {label:'Dianeal 1.5% Dextrose', color:'Yellow',  dextrosePct:1.5,  type:'crystalloid', uf:'Light',    note:'Isotonic-ish; minimal UF; safest for hyperglycemia-prone patients.'},
+  '2.5': {label:'Dianeal 2.5% Dextrose', color:'Green',   dextrosePct:2.5,  type:'crystalloid', uf:'Moderate', note:'Standard hypertonic; moderate UF; most common workhorse strength.'},
+  '4.25':{label:'Dianeal 4.25% Dextrose',color:'Red',     dextrosePct:4.25, type:'crystalloid', uf:'High',     note:'Maximum dextrose UF; use sparingly; watch glycemia and metabolic load.'},
+  'ico': {label:'Extraneal (Icodextrin 7.5%)', color:'Purple', dextrosePct:null, type:'colloid', uf:'Sustained long dwell', note:'Glucose polymer; sustained UF over 8–16 hr dwell; preferred for the long dwell; once daily max.'}
+};
+
+/* ── Baxter machine metadata ── */
+const machines = {
+  'amia':       {label:'Baxter Amia', minFillMl:60,  maxFillMl:3000, modes:['ccpd','nipd','tidal','ipd'], note:'Touchscreen cycler with Sharesource remote; supports low-fill volumes from ~60 mL.'},
+  'claria':     {label:'Baxter HomeChoice Claria', minFillMl:60, maxFillMl:3000, modes:['ccpd','nipd','tidal','ipd'], note:'Sharesource-enabled cycler; same fill range as Amia.'},
+  'homechoice': {label:'Baxter HomeChoice Pro', minFillMl:100, maxFillMl:3000, modes:['ccpd','nipd','tidal','ipd'], note:'Legacy cycler; no remote monitoring but otherwise full mode support.'},
+  'manual':     {label:'Manual exchanges (CAPD)', minFillMl:500, maxFillMl:3000, modes:['capd'], note:'No cycler; 4–5 daytime exchanges; 1 long overnight dwell.'}
+};
+
+/* ── Mode metadata ── */
+const modes = {
+  'ccpd':  {label:'CCPD (Continuous Cycling PD)', uses:'cycler + daytime dwell', defaultCycles:5,  defaultHr:9,  needsLastFill:true,  isTidal:false},
+  'nipd':  {label:'NIPD (Nocturnal Intermittent PD)', uses:'cycler only · dry day', defaultCycles:5, defaultHr:9,  needsLastFill:false, isTidal:false},
+  'tidal': {label:'Tidal PD',                   uses:'partial drain per cycle', defaultCycles:8,  defaultHr:9,  needsLastFill:true,  isTidal:true},
+  'ipd':   {label:'IPD (Intermittent PD)',      uses:'acute / inpatient',       defaultCycles:24, defaultHr:24, needsLastFill:false, isTidal:false},
+  'capd':  {label:'CAPD (Continuous Ambulatory)', uses:'manual exchanges',      defaultCycles:4,  defaultHr:24, needsLastFill:true,  isTidal:false}
+};
+
+/* ── BSA (Mosteller) ── */
+function mostellerBSA(heightCm, weightKg){
+  return Math.sqrt((heightCm * weightKg) / 3600);
+}
+
+/* ── Fill safety — weight & BSA-based per ISPD pediatric and Baxter IFU ── */
+function fillSafety(fillMl, weightKg, bsaM2, age){
+  const mlPerKg = fillMl / weightKg;
+  const mlPerM2 = fillMl / bsaM2;
+  const isPed = (age != null && age < 18) || weightKg < 30;
+
+  let level = 'ok', label = 'Within target', detail = '', color='#cdfaea', bg='rgba(126,240,210,.06)', border='rgba(126,240,210,.28)';
+
+  if(isPed){
+    // Pediatric target ~800–1100 mL/m² BSA, start at 600–800 mL/m²
+    if(mlPerM2 > 1400){
+      level='danger'; label='Pediatric fill EXCEEDS safe upper limit';
+      detail=`<strong>${fmt(mlPerM2,0)} mL/m²</strong> exceeds the ISPD pediatric ceiling (1100–1400 mL/m²). Risk: intra-abdominal hypertension, hernia, leak, respiratory compromise. Reduce fill volume.`;
+      color='#ffb4b4'; bg='rgba(255,111,111,.10)'; border='rgba(255,111,111,.32)';
+    } else if(mlPerM2 > 1100){
+      level='warn'; label='Pediatric fill at upper boundary';
+      detail=`<strong>${fmt(mlPerM2,0)} mL/m²</strong> is at the ISPD upper ceiling. Verify abdominal tolerance and respiratory status before scaling further.`;
+      color='#ffe8b6'; bg='rgba(255,205,112,.08)'; border='rgba(255,205,112,.32)';
+    } else if(mlPerM2 < 600){
+      level='warn'; label='Pediatric fill below initial-target range';
+      detail=`<strong>${fmt(mlPerM2,0)} mL/m²</strong> is below the typical 800–1100 mL/m² target. Acceptable for initial training/break-in; consider scaling up if tolerated.`;
+      color='#ffe8b6'; bg='rgba(255,205,112,.08)'; border='rgba(255,205,112,.32)';
+    } else {
+      detail=`<strong>${fmt(mlPerM2,0)} mL/m²</strong> within ISPD pediatric target (800–1100 mL/m²). Also ${fmt(mlPerKg,1)} mL/kg.`;
+    }
+  } else {
+    // Adult: 30–40 mL/kg target; safe ceiling 40, absolute ceiling 45
+    if(mlPerKg > 45){
+      level='danger'; label='Adult fill EXCEEDS safe upper limit';
+      detail=`<strong>${fmt(mlPerKg,1)} mL/kg</strong> exceeds 45 mL/kg. Risk: intra-abdominal hypertension, hernia, leak, hydrothorax, respiratory compromise. Reduce fill.`;
+      color='#ffb4b4'; bg='rgba(255,111,111,.10)'; border='rgba(255,111,111,.32)';
+    } else if(mlPerKg > 40){
+      level='warn'; label='Adult fill at upper boundary';
+      detail=`<strong>${fmt(mlPerKg,1)} mL/kg</strong> is at the 40–45 mL/kg ceiling. Confirm patient tolerance with sit-up test and respiratory exam.`;
+      color='#ffe8b6'; bg='rgba(255,205,112,.08)'; border='rgba(255,205,112,.32)';
+    } else if(mlPerKg < 25){
+      level='warn'; label='Adult fill below typical range';
+      detail=`<strong>${fmt(mlPerKg,1)} mL/kg</strong> is below the typical 30–40 mL/kg adult target. Acceptable for break-in or specific clinical scenarios; verify adequacy.`;
+      color='#ffe8b6'; bg='rgba(255,205,112,.08)'; border='rgba(255,205,112,.32)';
+    } else {
+      detail=`<strong>${fmt(mlPerKg,1)} mL/kg</strong> within adult target (30–40 mL/kg). BSA-normalized: ${fmt(mlPerM2,0)} mL/m².`;
+    }
+  }
+  return {level, label, detail, color, bg, border, mlPerKg, mlPerM2, isPed};
+}
+
+/* ── helpers ── */
+const state = {heightMode:'cm', weightMode:'kg', bag:'1.5'};
+const $ = (id) => document.getElementById(id);
+const el = {
+  sex:$('sex'), age:$('age'),
+  heightCm:$('heightCm'), heightFt:$('heightFt'), heightIn:$('heightIn'),
+  weightKg:$('weightKg'), weightLb:$('weightLb'),
+  machine:$('machine'), mode:$('mode'),
+  fillVolume:$('fillVolume'), cycles:$('cycles'), totalTime:$('totalTime'),
+  tidalPct:$('tidalPct'), tidalWrap:$('tidalWrap'),
+  lastFillVolume:$('lastFillVolume'), lastFillSolution:$('lastFillSolution'), lastFillWrap:$('lastFillWrap'),
+  targetTotal:$('targetTotal'),
+  results:$('results'), calculateBtn:$('calculateBtn'), resetBtn:$('resetBtn'),
+  heightMetricBtn:$('heightMetricBtn'), heightEnglishBtn:$('heightEnglishBtn'),
+  weightMetricBtn:$('weightMetricBtn'), weightEnglishBtn:$('weightEnglishBtn'),
+  heightCmWrap:$('heightCmWrap'), heightEnglishWrap:$('heightEnglishWrap'),
+  weightKgWrap:$('weightKgWrap'), weightLbWrap:$('weightLbWrap'),
+  bagRow:$('bagRow')
+};
+
+function setActive(buttons, activeButton){ buttons.forEach(b=>b.classList.remove('active')); activeButton.classList.add('active'); }
+function fmt(n, d=1){ if(!Number.isFinite(n)) return '—'; return Number(n).toLocaleString(undefined,{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function fmtInt(n){ if(!Number.isFinite(n)) return '—'; return Math.round(Number(n)).toLocaleString(); }
+function heightToCm(){ if(state.heightMode==='cm') return parseFloat(el.heightCm.value); const ft=parseFloat(el.heightFt.value||0); const inches=parseFloat(el.heightIn.value||0); return ((ft*12)+inches)*2.54; }
+function weightToKg(){ if(state.weightMode==='kg') return parseFloat(el.weightKg.value); return parseFloat(el.weightLb.value)*0.45359237; }
+function validatePositive(v, n){ if(!Number.isFinite(v) || v<=0) throw new Error(`Please enter a valid ${n}.`); }
+
+/* ── Unit toggles ── */
+[el.heightMetricBtn, el.heightEnglishBtn].forEach(b=>b.addEventListener('click', e=>{
+  if(e.currentTarget===el.heightMetricBtn){ state.heightMode='cm'; setActive([el.heightMetricBtn, el.heightEnglishBtn], el.heightMetricBtn); el.heightCmWrap.classList.remove('hidden'); el.heightEnglishWrap.classList.add('hidden'); }
+  else { state.heightMode='english'; setActive([el.heightMetricBtn, el.heightEnglishBtn], el.heightEnglishBtn); el.heightCmWrap.classList.add('hidden'); el.heightEnglishWrap.classList.remove('hidden'); }
+}));
+[el.weightMetricBtn, el.weightEnglishBtn].forEach(b=>b.addEventListener('click', e=>{
+  if(e.currentTarget===el.weightMetricBtn){ state.weightMode='kg'; setActive([el.weightMetricBtn, el.weightEnglishBtn], el.weightMetricBtn); el.weightKgWrap.classList.remove('hidden'); el.weightLbWrap.classList.add('hidden'); }
+  else { state.weightMode='lb'; setActive([el.weightMetricBtn, el.weightEnglishBtn], el.weightEnglishBtn); el.weightKgWrap.classList.add('hidden'); el.weightLbWrap.classList.remove('hidden'); }
+}));
+
+/* ── Bag color radio ── */
+el.bagRow.querySelectorAll('.bag-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    el.bagRow.querySelectorAll('.bag-chip').forEach(c=>{c.classList.remove('active');c.setAttribute('aria-checked','false');});
+    chip.classList.add('active'); chip.setAttribute('aria-checked','true');
+    state.bag = chip.dataset.bag;
+  });
+});
+
+/* ── Mode change handlers ── */
+function applyModeVisibility(){
+  const m = modes[el.mode.value];
+  if(!m) return;
+  // tidal field visibility
+  if(m.isTidal){ el.tidalWrap.classList.remove('hidden'); } else { el.tidalWrap.classList.add('hidden'); }
+  // last fill visibility
+  if(m.needsLastFill){ el.lastFillWrap.classList.remove('hidden'); } else { el.lastFillWrap.classList.add('hidden'); }
+}
+el.mode.addEventListener('change', applyModeVisibility);
+applyModeVisibility();
+
+/* ── machine/mode interlock — restrict cycler-only modes for manual ── */
+el.machine.addEventListener('change', ()=>{
+  const m = machines[el.machine.value];
+  if(!m) return;
+  // restrict mode dropdown to those supported
+  Array.from(el.mode.options).forEach(opt=>{
+    opt.disabled = !m.modes.includes(opt.value);
+  });
+  if(!m.modes.includes(el.mode.value)) el.mode.value = m.modes[0];
+  applyModeVisibility();
+});
+
+/* ── Calculate ── */
+function calculate(){
+  try{
+    const sex = el.sex.value;
+    const age = parseFloat(el.age.value);
+    const heightCm = heightToCm();
+    const weightKg = weightToKg();
+    const machineKey = el.machine.value;
+    const modeKey = el.mode.value;
+    const bagKey = state.bag;
+    const fillVolume = parseFloat(el.fillVolume.value);
+    const cycles = parseInt(el.cycles.value, 10);
+    const totalTime = parseFloat(el.totalTime.value);
+    const tidalPct = parseFloat(el.tidalPct.value);
+    const lastFillVolume = parseFloat(el.lastFillVolume.value) || 0;
+    const lastFillSolution = el.lastFillSolution.value;
+    const targetTotal = parseFloat(el.targetTotal.value);
+
+    if(!sex) throw new Error('Please select sex.');
+    validatePositive(weightKg, 'weight');
+    validatePositive(heightCm, 'height');
+    validatePositive(fillVolume, 'fill volume per cycle');
+    if(!Number.isFinite(cycles) || cycles<=0) throw new Error('Please enter number of cycles.');
+    validatePositive(totalTime, 'total therapy time');
+
+    const machine = machines[machineKey];
+    const mode = modes[modeKey];
+    const bag = solutions[bagKey];
+
+    // Mode/machine compatibility
+    if(!machine.modes.includes(modeKey)){
+      throw new Error(`The ${machine.label} does not support ${mode.label}. Choose a different machine or mode.`);
+    }
+
+    // BSA
+    const bsa = mostellerBSA(heightCm, weightKg);
+
+    // Fill safety
+    const fs = fillSafety(fillVolume, weightKg, bsa, age);
+
+    // Baxter machine min/max fill
+    let machineLimits = null;
+    if(fillVolume < machine.minFillMl){
+      machineLimits = {color:'#ffb4b4', bg:'rgba(255,111,111,.10)', border:'rgba(255,111,111,.32)',
+        text:`Fill ${fillVolume} mL is below the ${machine.label} minimum (${machine.minFillMl} mL). The machine cannot reliably deliver this fill.`};
+    } else if(fillVolume > machine.maxFillMl){
+      machineLimits = {color:'#ffb4b4', bg:'rgba(255,111,111,.10)', border:'rgba(255,111,111,.32)',
+        text:`Fill ${fillVolume} mL exceeds the ${machine.label} maximum (${machine.maxFillMl} mL).`};
+    }
+
+    // Total cycler volume (not including last fill)
+    const cyclerVolume = fillVolume * cycles;
+    // Last fill volume (only for needsLastFill modes; 0 otherwise)
+    const lastFill = mode.needsLastFill ? lastFillVolume : 0;
+    // Total therapy volume = cycler + last fill
+    const totalVolume = cyclerVolume + lastFill;
+
+    // Tidal: drain volume per cycle (% of fill); residual volume left in cavity
+    let tidalDrainMl = null, tidalResidualMl = null;
+    if(mode.isTidal && Number.isFinite(tidalPct)){
+      tidalDrainMl = (tidalPct/100) * fillVolume;
+      tidalResidualMl = fillVolume - tidalDrainMl;
+    }
+
+    // Dwell time per cycle (minutes) — total time minus fill/drain time approximation
+    const totalMin = totalTime * 60;
+    // Rough estimate: 10 min fill + 10 min drain per cycle for adult-volume; pediatric shorter (machine adapts)
+    const perCycleNonDwellMin = mode.isTidal ? 4 : 16; // tidal cycles much faster (less drain)
+    const totalNonDwellMin = perCycleNonDwellMin * cycles;
+    const totalDwellMin = Math.max(0, totalMin - totalNonDwellMin);
+    const dwellPerCycleMin = totalDwellMin / cycles;
+
+    // Bag count (typical 2L Dianeal/3L/5L; for last fill if icodextrin, separate purple bag)
+    // Conservative: assume 2L bags for cycler unless fillVolume > 2L
+    function bagPlan(volPerCycle, numCycles, label){
+      // pick a standard Baxter bag size
+      const standards = [1000, 1500, 2000, 2500, 3000, 5000, 6000];
+      const pickSize = standards.find(s => s >= volPerCycle) || 6000;
+      const bagsPerCycle = Math.max(1, Math.ceil(volPerCycle / pickSize));
+      const totalBags = bagsPerCycle * numCycles;
+      return {size:pickSize, bags:totalBags, label};
+    }
+    const cyclerBagPlan = bagPlan(fillVolume, cycles, bag.label);
+
+    let lastFillBagPlan = null, lastFillBagSolutionMeta = null;
+    if(lastFill > 0){
+      const lfKey = lastFillSolution === 'same' ? bagKey : lastFillSolution;
+      lastFillBagSolutionMeta = solutions[lfKey] || solutions[bagKey];
+      lastFillBagPlan = bagPlan(lastFill, 1, lastFillBagSolutionMeta.label);
+    }
+
+    // Order reconciliation: prescribed vs computed
+    let reconciliation = null;
+    if(Number.isFinite(targetTotal) && targetTotal > 0){
+      const delta = totalVolume - targetTotal;
+      const pct = Math.abs(delta / targetTotal) * 100;
+      if(pct < 1){
+        reconciliation = {ok:true, msg:`Computed total <strong>${fmtInt(totalVolume)} mL</strong> matches prescribed <strong>${fmtInt(targetTotal)} mL</strong> (within ${fmt(pct,1)}%).`};
+      } else {
+        reconciliation = {ok:false, msg:`Mismatch: computed <strong>${fmtInt(totalVolume)} mL</strong> vs prescribed <strong>${fmtInt(targetTotal)} mL</strong> (off by ${fmtInt(Math.abs(delta))} mL, ${fmt(pct,1)}%). Adjust fill, cycles, or last fill.`};
+      }
+    }
+
+    // Icodextrin last-fill recommendation for long dwell
+    let icodextrinNote = null;
+    if(mode.needsLastFill && lastFill > 0){
+      const dwellHr = (24 - totalTime); // approximate daytime dwell
+      const usingIco = (lastFillSolution === 'ico') || (lastFillSolution === 'same' && bagKey === 'ico');
+      if(dwellHr >= 8 && !usingIco){
+        icodextrinNote = `Last-fill dwell is approximately <strong>${fmt(dwellHr,1)} hr</strong>. Consider <strong>Icodextrin (Extraneal · purple)</strong> for sustained UF over long dwells — dextrose UF declines steeply after 4 hr due to glucose absorption.`;
+      } else if(usingIco){
+        icodextrinNote = `Icodextrin selected for the long dwell — appropriate. Limit Extraneal to <strong>one exchange per 24 hr</strong>. May falsely elevate finger-stick glucose readings (use glucose-specific meters).`;
+      }
+    }
+
+    // Render
+    renderResults({
+      patient:{sex, age, heightCm, weightKg, bsa},
+      machine, mode, bag,
+      fillVolume, cycles, totalTime, totalMin, tidalPct, tidalDrainMl, tidalResidualMl,
+      cyclerVolume, lastFill, lastFillSolutionMeta:lastFillBagSolutionMeta, totalVolume,
+      dwellPerCycleMin, totalDwellMin, perCycleNonDwellMin,
+      cyclerBagPlan, lastFillBagPlan,
+      fs, machineLimits, reconciliation, icodextrinNote
+    });
+
+  } catch(err){
+    el.results.innerHTML = `<div class="result-card" style="border-color:rgba(255,111,111,.3);background:rgba(255,111,111,.06)"><div class="result-kicker" style="color:#ffb4b4">Error</div><div class="result-value" style="font-size:18px">${err.message}</div></div>`;
+  }
+}
+
+/* ── Render results ── */
+function renderResults(r){
+  const lastFillBlock = r.lastFill > 0
+    ? `<div class="calc-line"><strong>Last fill:</strong> ${fmtInt(r.lastFill)} mL of ${r.lastFillSolutionMeta?.label || 'same bag'}</div>`
+    : `<div class="calc-line"><strong>Last fill:</strong> none (dry day)</div>`;
+
+  const tidalBlock = r.mode.isTidal
+    ? `<div class="result-card">
+        <div class="result-kicker">Tidal cycle math</div>
+        <div class="result-meta">
+          <div class="calc-line">Fill per cycle: <strong>${fmtInt(r.fillVolume)} mL</strong></div>
+          <div class="calc-line">Drain per cycle (${r.tidalPct}%): <strong>${fmtInt(r.tidalDrainMl)} mL</strong></div>
+          <div class="calc-line">Residual retained in cavity: <strong>${fmtInt(r.tidalResidualMl)} mL</strong></div>
+          <div class="calc-line">Tidal advantage: cavity is never empty — diffusion continues during drain → improved small-solute clearance, fewer hypotensive episodes from rapid drains.</div>
+        </div>
+      </div>`
+    : '';
+
+  const lastFillPlanBlock = r.lastFillBagPlan
+    ? `<div class="calc-line">Last fill: ${r.lastFillBagPlan.bags} × ${fmtInt(r.lastFillBagPlan.size)} mL bag of ${r.lastFillSolutionMeta?.label || 'same'}</div>`
+    : '';
+
+  const reconciliationBlock = r.reconciliation
+    ? `<div class="note ${r.reconciliation.ok ? '' : 'warning'}" style="margin-top:6px">${r.reconciliation.msg}</div>`
+    : '';
+
+  const icoBlock = r.icodextrinNote
+    ? `<div class="note info" style="margin-top:6px">${r.icodextrinNote}</div>`
+    : '';
+
+  const machineLimitNote = r.machineLimits
+    ? `<div class="note" style="color:${r.machineLimits.color};background:${r.machineLimits.bg};border-color:${r.machineLimits.border};margin-top:6px">${r.machineLimits.text}</div>`
+    : '';
+
+  el.results.innerHTML = `
+    <div class="result-card hero">
+      <div class="result-kicker">Total Therapy Volume</div>
+      <div class="result-value">${fmtInt(r.totalVolume)}<span class="unit">mL</span></div>
+      <div class="result-meta">${r.mode.label} · ${r.machine.label} · ${r.bag.label}</div>
+    </div>
+
+    <div class="result-card" style="border-color:${r.fs.border};background:${r.fs.bg}">
+      <div class="result-kicker" style="color:${r.fs.color}">Fill safety · ${r.fs.label}</div>
+      <div class="result-meta" style="color:${r.fs.color}">${r.fs.detail}</div>
+      ${machineLimitNote}
+    </div>
+
+    <div class="result-card">
+      <div class="result-kicker">Cycle math</div>
+      <div class="result-meta">
+        <div class="calc-line"><strong>Cycler total:</strong> ${fmtInt(r.fillVolume)} mL × ${r.cycles} cycles = ${fmtInt(r.cyclerVolume)} mL</div>
+        ${lastFillBlock}
+        <div class="calc-line"><strong>Total:</strong> ${fmtInt(r.cyclerVolume)} + ${fmtInt(r.lastFill)} = <strong>${fmtInt(r.totalVolume)} mL</strong></div>
+        <div class="calc-line"><strong>Total therapy time:</strong> ${fmt(r.totalTime,1)} hr (${fmtInt(r.totalMin)} min)</div>
+        <div class="calc-line"><strong>Dwell time per cycle:</strong> ≈ ${fmtInt(r.dwellPerCycleMin)} min</div>
+      </div>
+      ${reconciliationBlock}
+    </div>
+
+    ${tidalBlock}
+
+    <div class="result-card">
+      <div class="result-kicker">Bag plan (estimate)</div>
+      <div class="result-meta">
+        <div class="calc-line">Cycler: ${r.cyclerBagPlan.bags} × ${fmtInt(r.cyclerBagPlan.size)} mL bag of ${r.cyclerBagPlan.label}</div>
+        ${lastFillPlanBlock}
+        <div class="calc-line" style="color:var(--muted)">Round up to whole bags; verify available bag sizes on the unit.</div>
+      </div>
+      ${icoBlock}
+    </div>
+
+    <div class="result-card">
+      <div class="result-kicker">Read-back order summary</div>
+      <div class="order-grid">
+        <div class="lbl">Patient</div><div class="val">${r.patient.sex}, ${Number.isFinite(r.patient.age)?r.patient.age+' yr':'age n/a'}, ${fmt(r.patient.weightKg,1)} kg / ${fmt(r.patient.heightCm,0)} cm · BSA ${fmt(r.patient.bsa,2)} m²</div>
+        <div class="lbl">Machine</div><div class="val">${r.machine.label}</div>
+        <div class="lbl">Modality</div><div class="val">${r.mode.label}</div>
+        <div class="lbl">Solution</div><div class="val">${r.bag.label} (${r.bag.color})</div>
+        <div class="lbl">Fill</div><div class="val">${fmtInt(r.fillVolume)} mL × ${r.cycles} cycles</div>
+        ${r.mode.isTidal ? `<div class="lbl">Tidal</div><div class="val">${r.tidalPct}% drain · ${fmtInt(r.tidalDrainMl)} mL out / ${fmtInt(r.tidalResidualMl)} mL retained</div>` : ''}
+        ${r.lastFill > 0 ? `<div class="lbl">Last fill</div><div class="val">${fmtInt(r.lastFill)} mL · ${r.lastFillSolutionMeta?.label || 'same'}</div>` : ''}
+        <div class="lbl">Therapy time</div><div class="val">${fmt(r.totalTime,1)} hr</div>
+        <div class="lbl">Total volume</div><div class="val">${fmtInt(r.totalVolume)} mL</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ── reset ── */
+function reset(){
+  ['sex','age','heightCm','heightFt','heightIn','weightKg','weightLb','fillVolume','cycles','totalTime','lastFillVolume','targetTotal'].forEach(k=> el[k].value='');
+  el.tidalPct.value=50;
+  el.machine.value='amia';
+  el.mode.value='ccpd';
+  el.lastFillSolution.value='same';
+  state.bag='1.5';
+  el.bagRow.querySelectorAll('.bag-chip').forEach((c,i)=>{c.classList.toggle('active', i===0); c.setAttribute('aria-checked', i===0?'true':'false');});
+  Array.from(el.mode.options).forEach(opt=>opt.disabled=false);
+  applyModeVisibility();
+  el.results.innerHTML = `<div class="result-card"><div class="result-kicker">Awaiting inputs</div><div class="result-value">—</div><div class="result-meta">Fill the form and press Calculate.</div></div>`;
+}
+
+el.calculateBtn.addEventListener('click', calculate);
+el.resetBtn.addEventListener('click', reset);
+</script>
+</body>
+</html>
